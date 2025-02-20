@@ -9,7 +9,6 @@ typedef struct {
     int id;
     int arrival_time;
     int burst_time;
-    int priority;
     int start_time;
     int finish_time;
     int remaining_burst;
@@ -18,11 +17,10 @@ typedef struct {
 Process processes[MAX_PROCESSES];
 int num_processes = 0;
 
-void add_process(int id, int arrival_time, int burst_time, int priority) {
+void add_process(int id, int arrival_time, int burst_time) {
     processes[num_processes].id = id;
     processes[num_processes].arrival_time = arrival_time;
     processes[num_processes].burst_time = burst_time;
-    processes[num_processes].priority = priority;
     processes[num_processes].remaining_burst = burst_time;
     num_processes++;
 }
@@ -119,16 +117,16 @@ int main() {
     printf("3. Round Robin (RR)\n");
     scanf("%d", &choice);
 
-    add_process(1, 0, 6, 2); // ID, Arrival time, Burst time, Priority
-    add_process(2, 1, 8, 1);
-    add_process(3, 2, 7, 3);
-    add_process(4, 3, 3, 2);
-    add_process(5, 3, 3, 2);
-    add_process(6, 3, 3, 2);
-    add_process(7, 3, 3, 2);
-    add_process(8, 3, 3, 2);
-    add_process(9, 3, 3, 2);
-    add_process(10, 3, 3, 2);
+    add_process(1, 0, 6); // ID, Arrival time, Burst time
+    add_process(2, 1, 8);
+    add_process(3, 2, 7);
+    add_process(4, 3, 3);
+    add_process(5, 8, 8);
+    add_process(6, 5, 2);
+    add_process(7, 10, 5);
+    add_process(8, 12, 1);
+    add_process(9, 13, 7);
+    add_process(10, 15, 10);
 
     switch (choice) {
         case 1:
