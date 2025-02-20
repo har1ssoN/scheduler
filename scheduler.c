@@ -16,6 +16,7 @@ typedef struct {
 
 Process processes[MAX_PROCESSES];
 int num_processes = 0;
+int current_time = 0;
 
 void add_process(int id, int arrival_time, int burst_time) {
     processes[num_processes].id = id;
@@ -26,7 +27,6 @@ void add_process(int id, int arrival_time, int burst_time) {
 }
 
 void fifo_scheduler() {
-    int current_time = 0;
     for (int i = 0; i < num_processes; i++) {
         if (current_time < processes[i].arrival_time) {
             current_time = processes[i].arrival_time;
@@ -39,7 +39,6 @@ void fifo_scheduler() {
 }
 
 void sjf_scheduler() {
-    int current_time = 0;
     bool completed[MAX_PROCESSES] = {false};
 
     while (true) {
@@ -77,7 +76,6 @@ void sjf_scheduler() {
 }
 
 void round_robin_scheduler() {
-    int current_time = 0;
     bool completed[MAX_PROCESSES] = {false};
 
     printf("\nQuantum = %d\n\n", TIME_QUANTUM);
