@@ -1,6 +1,6 @@
 # Scheduler - Trabalho de Fundamentos de Sistemas Operacionais
 ## Alunos:
-- Harisson Freitas Magalhães - MATRICULA
+- Harisson Freitas Magalhães - 202006466
 - Victor Hugo França Lisboa - 200028341
 
 ## Descrição:
