@@ -14,8 +14,9 @@ $(OBJ): $(SRC) | $(OBJ_DIR)
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(TARGET)
 
-run: $(TARGET)
-	./$(TARGET)
+comp: $(TARGET)
+
+run: ./$(TARGET)
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
