@@ -31,14 +31,25 @@ void fifo_scheduler() {
         if (current_time < processes[i].arrival_time) {
             current_time = processes[i].arrival_time;
         }
+
         processes[i].start_time = current_time;
         processes[i].finish_time = current_time + processes[i].burst_time;
-        printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n", processes[i].id, processes[i].burst_time, processes[i].finish_time);
+        
+        printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n",
+        processes[i].id,
+        processes[i].burst_time,
+        processes[i].finish_time);
+        
         current_time = processes[i].finish_time;
     }
 }
 
 void sjf_scheduler() {
+    /*
+    * Shortest Job Firt Scheduler
+    * Escalona processos priorizando processos que tenham tempo de execução menor.
+    */
+
     bool completed[MAX_PROCESSES] = {false};
 
     while (true) {
@@ -59,7 +70,12 @@ void sjf_scheduler() {
 
         processes[shortest_index].start_time = current_time;
         processes[shortest_index].finish_time = current_time + processes[shortest_index].remaining_burst;
-        printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n", processes[shortest_index].id, processes[shortest_index].remaining_burst, processes[shortest_index].finish_time);
+        
+        printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n",
+        processes[shortest_index].id,
+        processes[shortest_index].remaining_burst,
+        processes[shortest_index].finish_time);
+        
         current_time = processes[shortest_index].finish_time;
         processes[shortest_index].remaining_burst = 0;
         completed[shortest_index] = true;
