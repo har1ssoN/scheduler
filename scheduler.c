@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #define MAX_PROCESSES 10
-#define TIME_QUANTUM 2
+#define TIME_QUANTUM 3
 
 typedef struct {
     int id;
@@ -17,6 +17,7 @@ typedef struct {
 Process processes[MAX_PROCESSES];
 int num_processes = 0;
 int current_time = 0;
+bool completed[MAX_PROCESSES] = {false};
 
 void add_process(int id, int arrival_time, int burst_time) {
     processes[num_processes].id = id;
@@ -27,18 +28,22 @@ void add_process(int id, int arrival_time, int burst_time) {
 }
 
 void fifo_scheduler() {
-    for (int i = 0; i < num_processes; i++) {
-        if (current_time < processes[i].arrival_time) {
+    /*
+    * First-In First-Out
+    * Escalona processos na ordem em que eles chegam para serem executados.
+    */
+    for(int i = 0; i < num_processes; i++) {
+        if(current_time < processes[i].arrival_time) {
             current_time = processes[i].arrival_time;
         }
 
-        processes[i].start_time = current_time;
+        processes[i].start_time = current_time; // processo i inicia imediatamente após o processo i-1 terminar
         processes[i].finish_time = current_time + processes[i].burst_time;
         
         printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n",
-        processes[i].id,
-        processes[i].burst_time,
-        processes[i].finish_time);
+            processes[i].id,
+            processes[i].burst_time,
+            processes[i].finish_time);
         
         current_time = processes[i].finish_time;
     }
@@ -47,79 +52,98 @@ void fifo_scheduler() {
 void sjf_scheduler() {
     /*
     * Shortest Job Firt Scheduler
-    * Escalona processos priorizando processos que tenham tempo de execução menor.
+    * Escalona processos priorizando processos pelo menor tempo de execução.
     */
 
-    bool completed[MAX_PROCESSES] = {false};
-
-    while (true) {
+    while(true) {
         int shortest_index = -1;
         int shortest_burst = __INT_MAX__;
 
-        for (int j = 0; j < num_processes; j++) {
-            if (!completed[j] && processes[j].arrival_time <= current_time && processes[j].remaining_burst < shortest_burst) {
-                shortest_burst = processes[j].remaining_burst;
-                shortest_index = j;
+        // encontra o processo com menor tempo de execução para executar
+        for(int i = 0; i < num_processes; i++) {
+            if(!completed[i] && processes[i].arrival_time <= current_time && processes[i].burst_time < shortest_burst) {
+                shortest_burst = processes[i].burst_time;
+                shortest_index = i;
             }
         }
 
-        if (shortest_index == -1) {
+        // avança o tempo caso nenhum processo tenha chegado
+        if(shortest_index == -1) {
             current_time++;
             continue;
         }
 
         processes[shortest_index].start_time = current_time;
-        processes[shortest_index].finish_time = current_time + processes[shortest_index].remaining_burst;
+        processes[shortest_index].finish_time = current_time + processes[shortest_index].burst_time;
         
         printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n",
         processes[shortest_index].id,
-        processes[shortest_index].remaining_burst,
+        processes[shortest_index].burst_time,
         processes[shortest_index].finish_time);
         
         current_time = processes[shortest_index].finish_time;
-        processes[shortest_index].remaining_burst = 0;
         completed[shortest_index] = true;
 
         bool all_completed = true;
-        for (int i = 0; i < num_processes; i++) {
-            if (!completed[i]) {
+        for(int i = 0; i < num_processes; i++) {
+            if(!completed[i]) {
                 all_completed = false;
                 break;
             }
         }
-        if (all_completed) break;
+        if(all_completed) {
+             break;
+        }
     }
 }
 
 void round_robin_scheduler() {
-    bool completed[MAX_PROCESSES] = {false};
+    /*
+    * Round Robin
+    * Escalona processos processos de forma que cada um tem um período de tempo
+    * Pré-determinado para executarem antes de serem interrompidos
+    * Ao ser interrompido, caso não tenha terminado de executar, o processo
+    * retorna ao final da fila de execução e aguarda novamente sua vez.
+    */
 
     printf("\nQuantum = %d\n\n", TIME_QUANTUM);
 
-    while (true) {
-        bool all_completed = true;
+    while(true) {
+        for(int i = 0; i < num_processes; i++) {
+            if(!completed[i] && processes[i].arrival_time <= current_time) {
+                int execution_time;
+                if(processes[i].remaining_burst > TIME_QUANTUM) {
+                    execution_time = TIME_QUANTUM;
+                }
+                else {
+                    execution_time = processes[i].remaining_burst;
+                }
+                
+                printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n",
+                    processes[i].id,
+                    execution_time,
+                    current_time + execution_time);
+                
+                processes[i].remaining_burst = processes[i].remaining_burst - execution_time;
+                current_time = current_time + execution_time;
 
-        for (int i = 0; i < num_processes; i++) {
-            if (!completed[i] && processes[i].arrival_time <= current_time) {
-                int execution_time = (processes[i].remaining_burst > TIME_QUANTUM) ? TIME_QUANTUM : processes[i].remaining_burst;
-                printf("Processo %d: executou durante %d períodos de tempo. [Tempo atual: %d]\n", processes[i].id, execution_time, current_time + execution_time);
-                processes[i].remaining_burst -= execution_time;
-                current_time += execution_time;
-
-                if (processes[i].remaining_burst == 0) {
+                if(processes[i].remaining_burst == 0) {
                     processes[i].finish_time = current_time;
                     completed[i] = true;
                 }
             }
         }
 
-        for (int i = 0; i < num_processes; i++) {
-            if (!completed[i]) {
+        bool all_completed = true;
+        for(int i = 0; i < num_processes; i++) {
+            if(!completed[i]) {
                 all_completed = false;
                 break;
             }
         }
-        if (all_completed) break;
+        if(all_completed) {
+            break;
+        }
     }
 }
 
@@ -142,7 +166,7 @@ int main() {
     add_process(9, 13, 7);
     add_process(10, 15, 10);
 
-    switch (choice) {
+    switch(choice) {
         case 1:
             fifo_scheduler();
             break;
