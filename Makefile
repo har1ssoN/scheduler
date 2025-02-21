@@ -16,7 +16,8 @@ $(TARGET): $(OBJ)
 
 comp: $(TARGET)
 
-run: ./$(TARGET)
+run:
+	./$(TARGET)
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
